@@ -1,0 +1,66 @@
+<link rel="stylesheet" href="css/pages.css">
+<h1><i class='bx bxs-group'></i>My Profile</h1>
+
+<!-- Profile Form Card -->
+<div class="profile-card">
+    <form id="profileForm">
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <select id="title" class="form-select" required>
+                <option value="">Select</option>
+                <option value="Mr">Mr.</option>
+                <option value="Mrs">Mrs.</option>
+                <option value="Miss">Miss</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="guardianName" class="form-label">Name of Guardian / Spouse</label>
+            <input type="text" id="guardianName" class="form-control" placeholder="Enter guardian or spouse name">
+        </div>
+
+        <div class="mb-3">
+            <label for="aadhaar" class="form-label">Aadhaar Card Number</label>
+            <input type="text" id="aadhaar" maxlength="12" class="form-control" placeholder="Enter 12-digit Aadhaar"
+                pattern="\d{12}">
+        </div>
+
+        <div class="mb-3">
+            <label for="pan" class="form-label">PAN Card Number</label>
+            <input type="text" id="pan" maxlength="10" class="form-control" placeholder="Enter PAN (e.g., ABCDE1234F)"
+                pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" id="phone" maxlength="10" class="form-control" placeholder="Enter 10-digit phone number"
+                pattern="\d{10}">
+        </div>
+
+        <div class="mb-3">
+            <label for="address" class="form-label">Permanent Address</label>
+            <textarea id="address" class="form-control" rows="2" placeholder="Enter your permanent address"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="corrAddress" class="form-label">Correspondence Address</label>
+            <textarea id="corrAddress" class="form-control" rows="2"
+                placeholder="Enter correspondence address"></textarea>
+        </div>
+
+        <div class="btn-position mt-4">
+            <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
