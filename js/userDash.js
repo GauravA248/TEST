@@ -1,60 +1,3 @@
-// const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
-
-// allSideMenu.forEach(item => {
-//     const li = item.parentElement;
-
-//     item.addEventListener('click', function () {
-//         allSideMenu.forEach(i => {
-//             i.parentElement.classList.remove('active');
-//         })
-//         li.classList.add('active');
-//     })
-// });
-// === Dynamic Page Loader ===
-document.addEventListener("DOMContentLoaded", () => {
-    const allLinks = document.querySelectorAll('#sidebar .side-menu.top li a');
-    const dashboardContent = document.getElementById("dashboardContent");
-    const pageContent = document.getElementById("pageContent");
-
-    allLinks.forEach(link => {
-        link.addEventListener("click", (e) => {
-            e.preventDefault();
-
-            const page = link.getAttribute("data-page");
-
-            // Remove active class for all
-            allLinks.forEach(i => i.parentElement.classList.remove("active"));
-            link.parentElement.classList.add("active");
-
-            // If Dashboard clicked → show dashboard content
-            if (page === "userDash.html") {
-                dashboardContent.style.display = "block";
-                pageContent.style.display = "none";
-                pageContent.innerHTML = "";
-                return;
-            }
-
-            // Otherwise, load the selected page dynamically
-            dashboardContent.style.display = "none";
-            pageContent.style.display = "block";
-            pageContent.innerHTML = `<p style="text-align:center;padding:30px;">Loading...</p>`;
-
-            fetch(page)
-                .then(res => {
-                    if (!res.ok) throw new Error("Page not found");
-                    return res.text();
-                })
-                .then(html => {
-                    pageContent.innerHTML = html;
-                })
-                .catch(err => {
-                    pageContent.innerHTML = `<p style="color:red;text-align:center;">Failed to load page.</p>`;
-                    console.error(err);
-                });
-        });
-    });
-});
-
 // TOGGLE SIDEBAR
 const menuBar = document.querySelector('#content nav .bx.bx-menu');
 const sidebar = document.getElementById('sidebar');
@@ -96,11 +39,11 @@ window.addEventListener('resize', function () {
 const switchMode = document.getElementById('switch-mode');
 
 switchMode.addEventListener('change', function () {
-	if(this.checked) {
-		document.body.classList.add('dark');
-	} else {
-		document.body.classList.remove('dark');
-	}
+    if (this.checked) {
+        document.body.classList.add('dark');
+    } else {
+        document.body.classList.remove('dark');
+    }
 })
 
 // const body = document.body;
@@ -120,26 +63,104 @@ switchMode.addEventListener('change', function () {
 // });
 
 // Date MENU
-function showDateMenu(x, y, dateText) {
+// function showDateMenu(x, y, dateText) {
+//     document.querySelectorAll(".date-menu").forEach(m => m.remove());
+
+//     const menu = document.createElement("div");
+//     menu.classList.add("date-menu");
+
+//     menu.style.left = `${x}px`;
+//     menu.style.top = `${y}px`;
+
+//     menu.innerHTML = `
+//     <ul>
+//       <li><i class='bx bxs-plane-alt'></i> Apply Leave</li>
+//       <li><i class='bx bxs-log-in-circle'></i> Punch In / Out</li>
+//       <li><i class='bx bxs-briefcase-alt-2'></i> Work Location</li>
+//       <li><i class='bx bxs-x-circle'></i> Cancel</li>
+//     </ul>
+//   `;
+
+//     document.body.appendChild(menu);
+//     console.log("✅ Date menu appended and styled:", dateText);
+
+//     // Close when clicking outside
+//     setTimeout(() => {
+//         document.addEventListener("click", (e) => {
+//             if (!menu.contains(e.target)) menu.remove();
+//         }, { once: true });
+//     }, 10);
+// }
+
+function showDateMenu(x, y, dateText, isFutureWeek = false) {
+    // Remove any existing menus
     document.querySelectorAll(".date-menu").forEach(m => m.remove());
 
+    // Create menu
     const menu = document.createElement("div");
     menu.classList.add("date-menu");
-
     menu.style.left = `${x}px`;
     menu.style.top = `${y}px`;
 
+    // If future week → hide Punch In/Out
+    const punchOptionHTML = isFutureWeek
+        ? "" // no punch option for future week
+        : `<li class="punch-option"><i class='bx bxs-log-in-circle'></i> Punch In / Out</li>`;
+
     menu.innerHTML = `
-    <ul>
-      <li><i class='bx bxs-plane-alt'></i> Apply Leave</li>
-      <li><i class='bx bxs-log-in-circle'></i> Punch In / Out</li>
-      <li><i class='bx bxs-briefcase-alt-2'></i> Work Location</li>
-      <li><i class='bx bxs-x-circle'></i> Cancel</li>
-    </ul>
-  `;
+        <ul>
+            <li class="apply-leave" data-page="pages/leaves.html">
+                <i class='bx bxs-plane-alt'></i> Apply Leave
+            </li>
+            ${punchOptionHTML}
+            <li class="work-location"><i class='bx bxs-briefcase-alt-2'></i> Work Location</li>
+            <li class="cancel-option"><i class='bx bxs-x-circle'></i> Cancel</li>
+        </ul>
+    `;
 
     document.body.appendChild(menu);
-    console.log("✅ Date menu appended and styled:", dateText);
+
+    console.log("✅ Date menu opened for:", dateText, "| Future week:", isFutureWeek);
+
+    // Apply Leave → SPA load
+    const applyBtn = menu.querySelector(".apply-leave");
+    if (applyBtn) {
+        applyBtn.addEventListener("click", (e) => {
+            const page = e.currentTarget.getAttribute("data-page");
+            const pageContent = document.getElementById("pageContent");
+            const dashboardContent = document.getElementById("dashboardContent");
+
+            if (!pageContent || !dashboardContent) {
+                console.error("Required containers not found!");
+                return;
+            }
+
+            dashboardContent.style.display = "none";
+            pageContent.style.display = "block";
+            pageContent.innerHTML = `<p style="text-align:center;padding:30px;">Loading...</p>`;
+
+            fetch(page)
+                .then(res => res.text())
+                .then(html => pageContent.innerHTML = html)
+                .catch(() => pageContent.innerHTML = `<p style="color:red;text-align:center;">Failed to load ${page}</p>`);
+
+            menu.remove();
+        });
+    }
+
+    // Punch In / Out → only if visible
+    const punchBtn = menu.querySelector(".punch-option");
+    if (punchBtn) {
+        punchBtn.addEventListener("click", () => {
+            alert(`Punch In/Out for ${dateText}`);
+            menu.remove();
+        });
+    }
+
+    // Cancel option
+    menu.querySelector(".cancel-option").addEventListener("click", () => {
+        menu.remove();
+    });
 
     // Close when clicking outside
     setTimeout(() => {
@@ -148,6 +169,7 @@ function showDateMenu(x, y, dateText) {
         }, { once: true });
     }, 10);
 }
+
 
 // calendr
 document.addEventListener("DOMContentLoaded", () => {
@@ -236,10 +258,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 el.appendChild(dot);
             }
 
-            // Future 7 days (visible, no dots, not clickable)
+            // Future 7 days (visible, no dots, menu allowed but limited)
             else if (thisDate > today && thisDate <= limitDate) {
                 el.classList.add("next-week");
-                el.style.pointerEvents = "none";
+                el.dataset.future = "true"; // mark this date as future
+                // DO NOT disable pointer events — we want the menu to open!
             }
 
             // After 7 days (disabled)
@@ -256,7 +279,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const y = rect.top + window.scrollY + rect.height + 8;
                 const dateText = `${d} ${monthNames[month]} ${year}`;
 
-                showDateMenu(x, y, dateText);
+                const isFutureWeek = thisDate > today && thisDate <= limitDate;
+
+                showDateMenu(x, y, dateText, isFutureWeek);
             });
         }
 

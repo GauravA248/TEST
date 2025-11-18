@@ -412,3 +412,98 @@ select.form-select {
         /* enable smooth horizontal scroll */
     }
 }
+
+/* ==============================
+   DARK THEME STYLES
+================================ */
+
+.dark body {
+    background: #121212;
+    color: #e0e0e0;
+}
+
+.dark .profile-card {
+    background: #1e1e1e;
+    color: #f1f1f1;
+    box-shadow: 0 0 15px 2px var(--blue);
+    border: none;
+    /* remove border */
+}
+
+.dark input.form-control,
+.dark select.form-select,
+.dark textarea.form-control {
+    background: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #3a3a3a;
+}
+
+.dark input.form-control::placeholder,
+.dark textarea.form-control::placeholder {
+    color: #aaa;
+}
+
+.dark .btn-primary {
+    background: var(--blue);
+    color: #fff;
+}
+
+.dark .custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1e1e1e;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.2);
+    /* soft blue glow */
+}
+
+.dark .custom-table thead {
+    background-color: var(--blue);
+    color: #ffffff;
+    text-align: center;
+}
+
+.dark .custom-table th,
+.dark .custom-table td {
+    padding: 14px 12px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #2a2a2a;
+    text-align: center;
+    color: #e0e0e0;
+}
+
+.dark .custom-table tbody tr:hover {
+    background-color: rgba(99, 145, 230, 0.15);
+    /* soft blue hover */
+    transition: background-color 0.3s ease;
+}
+
+.dark .custom-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.dark .custom-table thead {
+    background: linear-gradient(90deg, var(--blue), #5aa3ff);
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+}
+
+.dark input[type="date"] {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #3a3a3a;
+}
+
+/* Change the calendar icon color (WebKit browsers like Chrome, Edge) */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    /* inverts black → white */
+    cursor: pointer;
+}
+
+/* Optional: hover glow for the icon */
+.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(1) brightness(1.3);
+}
+

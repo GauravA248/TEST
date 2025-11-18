@@ -1,19 +1,3 @@
-const allSideMenu = document.querySelectorAll('#sidebar .side-menu.top li a');
-
-allSideMenu.forEach(item => {
-	const li = item.parentElement;
-
-	item.addEventListener('click', function () {
-		allSideMenu.forEach(i => {
-			i.parentElement.classList.remove('active');
-		})
-		li.classList.add('active');
-	})
-});
-
-
-
-
 // TOGGLE SIDEBAR
 const menuBar = document.querySelector('#content nav .bx.bx-menu');
 const sidebar = document.getElementById('sidebar');
@@ -55,7 +39,7 @@ window.addEventListener('resize', function () {
 const switchMode = document.getElementById('switch-mode');
 
 switchMode.addEventListener('change', function () {
-	if(this.checked) {
+	if (this.checked) {
 		document.body.classList.add('dark');
 	} else {
 		document.body.classList.remove('dark');
@@ -77,3 +61,5 @@ switchMode.addEventListener('change', function () {
 // 		body.classList.remove('dark'); // Light mode ON
 // 	}
 // });
+
+

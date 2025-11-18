@@ -1,3 +1,138 @@
+// === Global Page Loader for Both Admin & User Dashboards ===
+// document.addEventListener("DOMContentLoaded", () => {
+//     const allLinks = document.querySelectorAll('#sidebar .side-menu.top li a');
+//     const pageContent = document.getElementById("pageContent");
+//     const dashboardContent = document.getElementById("dashboardContent");
+
+//     if (!pageContent || !dashboardContent) {
+//         console.error("Required content containers not found!");
+//         return;
+//     }
+
+//     allLinks.forEach(link => {
+//         link.addEventListener("click", (e) => {
+//             e.preventDefault();
+//             const page = link.getAttribute("data-page");
+
+//             // Remove active class from all menu items
+//             allLinks.forEach(i => i.parentElement.classList.remove("active"));
+//             link.parentElement.classList.add("active");
+
+//             // --- Handle Admin Dashboard ---
+//             if (window.location.pathname.includes("dashboard.html") && page === "dashboard.html") {
+//                 dashboardContent.style.display = "block";
+//                 pageContent.style.display = "none";
+//                 pageContent.innerHTML = "";
+//                 return;
+//             }
+
+//             // --- Handle User Dashboard ---
+//             if (window.location.pathname.includes("userDash.html") && page === "userDash.html") {
+//                 dashboardContent.style.display = "block";
+//                 pageContent.style.display = "none";
+//                 pageContent.innerHTML = "";
+//                 return;
+//             }
+
+//             // --- Load any other page dynamically ---
+//             dashboardContent.style.display = "none";
+//             pageContent.style.display = "block";
+//             pageContent.innerHTML = `<p style="text-align:center;padding:30px;">Loading...</p>`;
+
+//             fetch(page)
+//                 .then(res => {
+//                     if (!res.ok) throw new Error(`Page not found: ${page}`);
+//                     return res.text();
+//                 })
+//                 .then(html => {
+//                     pageContent.innerHTML = html;
+//                 })
+//                 .catch(err => {
+//                     console.error(err);
+//                     pageContent.innerHTML = `<p style="color:red;text-align:center;">Failed to load page: ${page}</p>`;
+//                 });
+//         });
+//     });
+// });
+
+// === Global Page Loader for Both Admin & User Dashboards ===
+document.addEventListener("DOMContentLoaded", () => {
+    const allLinks = document.querySelectorAll('#sidebar .side-menu.top li a');
+    const pageContent = document.getElementById("pageContent");
+    const dashboardContent = document.getElementById("dashboardContent");
+
+    if (!pageContent || !dashboardContent) {
+        console.error("Required content containers not found!");
+        return;
+    }
+
+    allLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const page = link.getAttribute("data-page");
+
+            // Remove active class
+            allLinks.forEach(i => i.parentElement.classList.remove("active"));
+            link.parentElement.classList.add("active");
+
+            // Admin dashboard
+            if (window.location.pathname.includes("dashboard.html") && page === "dashboard.html") {
+                dashboardContent.style.display = "block";
+                pageContent.style.display = "none";
+                pageContent.innerHTML = "";
+                return;
+            }
+
+            // User dashboard
+            if (window.location.pathname.includes("userDash.html") && page === "userDash.html") {
+                dashboardContent.style.display = "block";
+                pageContent.style.display = "none";
+                pageContent.innerHTML = "";
+                return;
+            }
+
+            // Load other pages
+            dashboardContent.style.display = "none";
+            pageContent.style.display = "block";
+            pageContent.innerHTML = `<p style="text-align:center;padding:30px;">Loading...</p>`;
+
+            fetch(page)
+                .then(res => {
+                    if (!res.ok) throw new Error(`Page not found: ${page}`);
+                    return res.text();
+                })
+                .then(html => {
+                    pageContent.innerHTML = html;
+
+                    // -------------------------------------------------------
+                    // RUN SCRIPTS inside dynamically loaded page
+                    // -------------------------------------------------------
+                    const tempDiv = document.createElement("div");
+                    tempDiv.innerHTML = html;
+
+                    tempDiv.querySelectorAll("script").forEach(oldScript => {
+                        const newScript = document.createElement("script");
+
+                        if (oldScript.src) {
+                            newScript.src = oldScript.src;   // external JS
+                        } else {
+                            newScript.innerHTML = oldScript.innerHTML; // inline JS
+                        }
+
+                        document.body.appendChild(newScript); // execute it
+                    });
+                    // -------------------------------------------------------
+                })
+                .catch(err => {
+                    console.error(err);
+                    pageContent.innerHTML = `<p style="color:red;text-align:center;">Failed to load page: ${page}</p>`;
+                });
+        });
+    });
+});
+
+
+// logout
 document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn =
         document.getElementById('logoutBtn') ||

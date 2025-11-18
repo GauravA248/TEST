@@ -345,7 +345,7 @@ body.dark .modal {
 }
 
 /* Date Menu */
-.date-menu {
+/* .date-menu {
     position: absolute;
     background: #ffffff;
     border-radius: 12px;
@@ -357,7 +357,30 @@ body.dark .modal {
     animation: menuFadeIn 0.25s ease;
     transform-origin: top center;
     font-family: 'Poppins', sans-serif;
+} */
+
+.date-menu {
+    position: absolute;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 999999;
+    width: 210px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    animation: menuFadeIn 0.25s ease;
+    transform-origin: bottom right; /* ✅ animation expands from bottom-right */
+    font-family: 'Poppins', sans-serif;
+
+    /* ✅ Force the menu to appear slightly ABOVE and RIGHT of the date */
+    transform: translate(10px, -100%);
+
+    /* ✅ Prevent from going off-screen */
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
 }
+
 
 .date-menu ul {
     list-style: none;
@@ -431,142 +454,3 @@ body.dark .date-menu li:hover {
 body.dark .date-menu li i {
     color: #66b2ff;
 }
-
-/* 🌐 RESPONSIVE LAYOUT ENHANCEMENTS */
-
-/* ✅ General scaling & font adjustments */
-/* html {
-    font-size: 100%;
-}
-
-@media (max-width: 1200px) {
-    #content main .head-title .left h1 {
-        font-size: 28px;
-    }
-
-    #content main .box-info li {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-    }
-} */
-
-/* ✅ Sidebar responsiveness */
-/* @media (max-width: 992px) {
-    #sidebar {
-        position: fixed;
-        left: -280px;
-        transition: left 0.3s ease;
-    }
-
-    #sidebar.show {
-        left: 0;
-    }
-
-    #content {
-        width: 100%;
-        left: 0;
-    }
-
-    #content nav .bx-menu {
-        display: block;
-    }
-} */
-
-/* ✅ Navbar elements wrap neatly */
-/* @media (max-width: 768px) {
-    #content nav {
-        flex-wrap: wrap;
-        padding: 0 16px;
-        height: auto;
-        gap: 10px;
-    }
-
-    #content nav form {
-        order: 3;
-        width: 100%;
-    }
-
-    #content nav .notification,
-    #content nav .profile {
-        order: 2;
-    }
-} */
-
-/* ✅ Cards and table-data stack on small devices */
-/* @media (max-width: 768px) {
-    #content main {
-        padding: 24px 16px;
-    }
-
-    #content main .table-data {
-        flex-direction: column;
-    }
-
-    #content main .table-data>div {
-        width: 100%;
-    }
-
-    #content main .box-info {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-} */
-
-/* ✅ Calendar adjusts for mobile */
-/* @media (max-width: 600px) {
-    #calendar {
-        max-width: 100%;
-        padding: 15px;
-    }
-
-    .calendar {
-        gap: 4px;
-    }
-
-    .calendar-day {
-        width: 38px;
-        height: 38px;
-        line-height: 38px;
-        font-size: 0.85rem;
-    }
-
-    .calendar-header h3 {
-        font-size: 1.1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .punch-container {
-        gap: 0.6rem;
-    }
-
-    .punch-btn {
-        font-size: 0.9rem;
-        padding: 8px 18px;
-    }
-
-    .time-display h4 {
-        font-size: 1.5rem;
-    }
-
-    .attendance-section {
-        padding: 15px;
-    }
-
-    .punch-info {
-        max-width: 100%;
-    }
-}
-
-@media (max-width: 400px) {
-    .date-menu {
-        width: 90%;
-        left: 5% !important;
-    }
-
-    .date-menu li {
-        font-size: 13px;
-        padding: 8px 12px;
-    }
-} */
-
