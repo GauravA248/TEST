@@ -109,7 +109,7 @@ function showDateMenu(x, y, dateText, isFutureWeek = false) {
 
     menu.innerHTML = `
         <ul>
-            <li class="apply-leave" data-page="pages/leaves.php">
+            <li class="apply-leave" data-page="pages/leaves.html">
                 <i class='bx bxs-plane-alt'></i> Apply Leave
             </li>
             ${punchOptionHTML}
