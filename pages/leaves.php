@@ -1,0 +1,57 @@
+<link rel="stylesheet" href="css/pages.css">
+<h1><i class='bx bxs-plane'></i>Apply Leave</h1>
+
+<!-- Profile Form Card -->
+<div class="profile-card">
+  <form id="profileForm">
+    <div class="mb-3">
+      <label for="title" class="form-label">Leave Type</label>
+      <select id="title" class="form-select" required>
+        <option value="">Select</option>
+        <option value="Casual Leave">Casual Leave</option>
+        <option value="Sick Leave">Sick Leave</option>
+        <option value="Earned Leave">Earned Leave</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">From Date</label>
+      <input type="date" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">To Date</label>
+      <input type="date" class="form-control">
+    </div>
+
+    <div class="mb-3">
+      <label for="address" class="form-label">Reason</label>
+      <textarea id="address" class="form-control" rows="2" placeholder="Enter your reason"></textarea>
+    </div>
+
+    <div class="btn-position mt-4">
+      <!-- <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button> -->
+      <button type="submit" class="btn btn-primary" style="cursor: pointer;">Submit Leave</button>
+      <!-- <div class="success" id="successMsg"></div> -->
+    </div>
+  </form>
+</div>
+
+<!-- <script>
+  document.getElementById('leaveForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const leaveType = document.getElementById('leaveType').value;
+    const from = document.getElementById('fromDate').value;
+    const to = document.getElementById('toDate').value;
+    const reason = document.getElementById('reason').value;
+
+    if (!leaveType || !from || !to || !reason) {
+      alert('Please fill all fields!');
+      return;
+    }
+
+    // Simulate saving or API call
+    document.getElementById('successMsg').textContent = '✅ Leave submitted successfully!';
+    this.reset();
+  });
+</script> -->
