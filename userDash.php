@@ -26,7 +26,7 @@
         </a>
         <ul class="side-menu top">
             <li class="active">
-                <a href="#" data-page="userDash.php">
+                <a href="userDash.php" data-page="true">
                     <i class='bx bxs-dashboard'></i>
                     <span class="text">Dashboard</span>
                 </a>
@@ -40,7 +40,7 @@
             <li>
                 <a href="#" data-page="pages/payment.php">
                     <i class='bx bxs-doughnut-chart'></i>
-                    <span class="text">Payement Process</span>
+                    <span class="text">Payment Process</span>
                 </a>
             </li>
             <li>
@@ -190,6 +190,7 @@
     <!-- CONTENT -->
 
     <script src="js/userDash.js"></script>
+    <script src="js/sidebar-loader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/logout.js"></script>
 
