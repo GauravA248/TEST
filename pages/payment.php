@@ -5,8 +5,7 @@ require_once __DIR__ . "/../config/db.php";
 /* ===== FORM SUBMIT ===== */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    try {
-        error_log("Hello Gaurav");
+    try {    
         if (!isset($_SESSION['user_id'])) {
             throw new Exception("Unauthorized access attempt");
         }
@@ -59,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<script>alert('Payment Applied Successfully');</script>";
 
         $stmt->close();
+        
 
     } catch (Throwable $e) {
 
@@ -67,15 +67,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "[Advance Salary Error] " .
             "UserID: " . ($_SESSION['user_id'] ?? 'NA') .
             " | Message: " . $e->getMessage()
-        );
-
-        echo "<script>alert('Something went wrong. Please try again later.');</script>";
+        );     
     }
+
 }
 ?>
 
 
-<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="/TEST/css/pages.css">
+<div id="main-content">
+
 <h1 class="d-flex justify-content-center my-0 py-0">
     <i class='bx bxs-dollar-circle'></i>Payment Application
 </h1>
@@ -87,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="d-flex justify-content-center">
 <div class="profile-card col-md-8 col-sm-12 mt-2">
 
-<form method="POST" id="profileForm" action="pages/payment.php">
+<form method="POST" id="profileForm" action ="pages/payment.php">
 
     <div class="mb-3">
         <label class="form-label">Select Payment Type</label>
@@ -132,9 +133,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="submit" class="btn btn-primary">Submit</button>
     </div>
 
+    
+
 </form>
 </div>
 </div>
+</div>
+<script src="/TEST/js/sidebar-loader.js"></script>
+
 
 <script>
 const paymentType = document.getElementById("paymentType");

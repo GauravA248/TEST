@@ -132,12 +132,12 @@ if (isset($_SESSION['leave_alert'])) {
      PAGE UI
 ======================= -->
 
-<link rel="stylesheet" href="css/pages.css">
-
+<link rel="stylesheet" href="/TEST/css/pages.css">
+<div id="main-content">
 <h1><i class='bx bxs-plane'></i> Apply Leave</h1>
 
 <div class="profile-card">
-    <form method="POST" action="pages/leaves.php">
+    <form method="POST" id="profileForm" action="pages/leaves.php">
 
         <div class="mb-3">
             <label class="form-label">Leave Type</label>
@@ -172,6 +172,8 @@ if (isset($_SESSION['leave_alert'])) {
 
     </form>
 </div>
+</div>
+<script src="/TEST/js/sidebar-loader.js"></script>
 
 <!-- =======================
      SWEETALERT POPUP
