@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="css/pages.css">
 
 <h1>
-    <i class='bx bxs-calendar-check'></i>Attendace Status
+    <i class='bx bxs-calendar-check'></i>Leave Status
 </h1>
 
 <style>

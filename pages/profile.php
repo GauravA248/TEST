@@ -25,7 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $corr_addr   = $_POST['correspondence_address'] ?? null;
 
         $job_role    = $_POST['job_role'] ?? null;
-        $doj         = $_POST['date_of_joining'] ?? null;
+       $doj = !empty($_POST['date_of_joining'])
+                ? date('Y-m-d', strtotime($_POST['date_of_joining']))
+                : null;
 
         $bank_name   = $_POST['bank_name'] ?? null;
         $account_no  = $_POST['account_number'] ?? null;
@@ -35,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $check = $conn->prepare("SELECT id FROM user_profiles WHERE user_id = ?");
         $check->bind_param("i", $user_id);
         $check->execute();
-        $exists = $check->get_result()->num_rows > 0;
+        $check->store_result();
+        $exists = $check->num_rows > 0;
         $check->close();
 
         if ($exists) {
@@ -93,17 +96,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
         }
 
-        if (!$stmt->execute()) {
-            throw new Exception("DB Error: " . $stmt->error);
-        }
-
+         if (empty($_SESSION['user_id'])) {
+          die("USER NOT LOGGED IN");
+            }
+        $stmt->execute();
         $stmt->close();
 
         // ✅ SAME PATTERN AS payment.php
         echo "<script>
             alert('Profile saved successfully');
-            window.location.href = 'profile.php';
+            window.location.href = '../userDash.php';
         </script>";
+        exit;
+        echo "PROFILE SAVED";
         exit;
 
     } catch (Throwable $e) {
@@ -120,9 +125,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
+<link rel="stylesheet" href="/TEST/css/pages.css">
+<div id="main-content">
+<h1><i class='bx bxs-plane'></i> Profile Details</h1>
 <div class="profile-card">
-    <form id="profileForm" method="POST" action="">
+    <form id="profileForm" method="POST" action="pages/profile.php">
 
         <div class="form-row">
             <div class="mb-3 col">
@@ -242,7 +249,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     </form>
 </div>
+</div>
 
-<script src="/TEST/js/sidebar-loader.js"></script>
+<!-- <script src="/TEST/js/sidebar-loader.js"></script> -->
+
+
+
 
 

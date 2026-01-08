@@ -26,7 +26,7 @@
         </a>
         <ul class="side-menu top">
             <li class="active">
-                <a href="userDash.php" data-page="true">
+                <a href="#" id="dashboardLink">
                     <i class='bx bxs-dashboard'></i>
                     <span class="text">Dashboard</span>
                 </a>
@@ -52,7 +52,7 @@
             <li>
                 <a href="#" data-page="pages/attendance.php">
                     <i class='bx bxs-message-dots'></i>
-                    <span class="text">Attendance</span>
+                    <span class="text">Leave Details</span>
                 </a>
             </li>
             <li>
@@ -61,6 +61,12 @@
                     <span class="text">Apply Leave</span>
                 </a>
             </li>
+            <li>
+                <a href="#" data-page="pages/user_Attendance.php">
+                    <i class='bx bx-log-in'></i>
+                    <span class="text">My Attendance</span>
+                </a>
+            </li>    
         </ul>
         <ul class="side-menu">
             <li>
@@ -189,6 +195,7 @@
     </section>
     <!-- CONTENT -->
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/userDash.js"></script>
     <script src="js/sidebar-loader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

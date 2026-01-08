@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 </div>
 <script src="/TEST/js/sidebar-loader.js"></script>
-
+    
 
 <script>
 const paymentType = document.getElementById("paymentType");
