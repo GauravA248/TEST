@@ -21,6 +21,7 @@ try {
     /* ===================== PUNCH IN ===================== */
     if ($action === "punch_in") {
 
+        // ✅ Check if already punched in today
         $stmt = $conn->prepare("
             SELECT id FROM attendance
             WHERE user_id = ? AND DATE(punch_in) = CURDATE()
@@ -33,8 +34,10 @@ try {
             throw new Exception("Already punched in today");
         }
 
+        // ✅ Insert punch in
         $stmt = $conn->prepare("
-            INSERT INTO attendance (user_id, punch_in, punch_in_location)
+            INSERT INTO attendance
+            (user_id, punch_in, punch_in_location)
             VALUES (?, NOW(), ?)
         ");
         $stmt->bind_param("is", $user_id, $location);
@@ -81,12 +84,12 @@ try {
         ");
         $stmt->bind_param("sdi", $location, $hours, $row['id']);
         $stmt->execute();
-
         echo json_encode([
-            "status"  => "success",
-            "message" => "Punch Out successful",
-            "time"    => date("H:i:s")
+        "status"  => "success",
+        "message" => "Punch In successful",
+        "punch_in_time" => time() // unix timestamp
         ]);
+
         exit;
     }
 
