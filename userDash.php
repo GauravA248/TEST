@@ -20,7 +20,7 @@
 <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
-        <a href="#" class="brand">
+        <a href="./userDash.php" class="brand">
             <i class='bx bxs-smile'></i>
             <span class="text">JEEVCHI</span>
         </a>
@@ -50,7 +50,7 @@
                 </a>
             </li>
             <li>
-                <a href="#" data-page="pages/attendance.php">
+                <a href="#" data-page="pages/leaves_status.php">
                     <i class='bx bxs-message-dots'></i>
                     <span class="text">Leave Details</span>
                 </a>
@@ -114,7 +114,7 @@
             <div id="dashboardContent">
                 <div class="head-title">
                     <div class="left">
-                        <h1>Dashboard</h1>
+                        <h1>Welcome, Hash</h1>
                         <ul class="breadcrumb">
                             <li>
                                 <a href="#">Dashboard</a>
@@ -125,6 +125,12 @@
                             </li>
                         </ul>
                     </div>
+                     <div class="punch-container">
+                            <div class="time-display">
+                                <h4 id="currentTime">--:--:--</h4>
+                                <p id="currentDate">-- -- ----</p>
+                            </div>
+                    </div>      
                     <!-- <a href="#" class="btn-download">
                         <i class='bx bxs-cloud-download'></i>
                         <span class="text">Download PDF</span>
@@ -165,11 +171,7 @@
                             <h3>Attendance</h3>
                         </div>
 
-                        <div class="punch-container">
-                            <div class="time-display">
-                                <h4 id="currentTime">--:--:--</h4>
-                                <p id="currentDate">-- -- ----</p>
-                            </div>
+                       
 
                             <div class="buttons">
                                 <button id="punchInBtn" class="punch-btn punch-in">
@@ -181,8 +183,9 @@
                             </div>
 
                             <div class="punch-info">
-                                <p id="punchInTime">Punch In Time: --</p>
-                                <p id="punchOutTime">Punch Out Time: --</p>
+                                <!-- <p id="punchInTime">Punch In Time: --</p>
+                                <p id="punchOutTime">Punch Out Time: --</p> -->
+                                <p id="workDuration">Working Duration: --</p>
                                 <p id="locationInfo"></p>
                             </div>
                         </div>
