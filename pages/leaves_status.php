@@ -5,11 +5,11 @@ require_once __DIR__ . "/../config/db.php";
 $userId = $_SESSION['user_id'];
 
 /* ===== READ FILTER INPUTS ===== */
-$fromDate    = $_GET['from_date'] ?? '';
-$toDate      = $_GET['to_date'] ?? '';
-$paymentType = $_GET['payment_type'] ?? '';
+$fromDate = $_GET['from_date'] ?? '';
+$toDate   = $_GET['to_date'] ?? '';
+$statusF  = $_GET['status'] ?? '';
 
-/* ===== PAGINATION SETTINGS ===== */
+/* ===== PAGINATION ===== */
 $limit  = 10;
 $page   = isset($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $limit;
@@ -18,7 +18,7 @@ $offset = ($page - 1) * $limit;
 <link rel="stylesheet" href="css/pages.css">
 
 <h1>
-    <i class='bx bxs-dollar-circle'></i>Transaction Status
+    <i class='bx bxs-calendar-check'></i>Leave Status
 </h1>
 
 <style>
@@ -30,7 +30,7 @@ $offset = ($page - 1) * $limit;
     }
 </style>
 
-<!-- ================= FILTER UI ================= -->
+<!-- ================= FILTER BAR ================= -->
 <div class="profile-card">
     <form method="GET">
         <div class="attendance-filter">
@@ -45,14 +45,13 @@ $offset = ($page - 1) * $limit;
                 <input type="date" class="form-control" name="to_date" value="<?= htmlspecialchars($toDate) ?>">
             </div>
 
-            <!-- ✅ CASH FILTER ADDED -->
             <div class="filter-item">
-                <label>Payment Type</label>
-                <select class="form-control" name="payment_type">
+                <label>Status</label>
+                <select class="form-control" name="status">
                     <option value="">All</option>
-                    <option value="Cash" <?= $paymentType === 'Cash' ? 'selected' : '' ?>>Cash</option>
-                    <option value="UPI" <?= $paymentType === 'UPI' ? 'selected' : '' ?>>UPI</option>
-                    <option value="Bank" <?= $paymentType === 'Bank' ? 'selected' : '' ?>>Bank</option>
+                    <option value="approved" <?= $statusF === 'approved' ? 'selected' : '' ?>>Approved</option>
+                    <option value="pending" <?= $statusF === 'pending' ? 'selected' : '' ?>>Pending</option>
+                    <option value="rejected" <?= $statusF === 'rejected' ? 'selected' : '' ?>>Rejected</option>
                 </select>
             </div>
 
@@ -77,23 +76,21 @@ $offset = ($page - 1) * $limit;
             <thead>
                 <tr>
                     <th>Sr No</th>
+                    <th>Leave Date</th>
                     <th>Request Date</th>
-                    <th>Amount</th>
-                    <th>Payment Type</th>
-                    <th>Reason</th>
                     <th>Status</th>
                 </tr>
             </thead>
 
             <tbody>
             <?php
-            $sql = "SELECT request_date, amount, payment_type, reason, status
-                    FROM advance_salary
+            $sql = "SELECT id, start_date, end_date, created_at, status
+                    FROM leaves
                     WHERE user_id = ?
-                      AND (? = '' OR DATE(request_date) >= ?)
-                      AND (? = '' OR DATE(request_date) <= ?)
-                      AND (? = '' OR payment_type = ?)
-                    ORDER BY request_date DESC
+                      AND (? = '' OR DATE(start_date) >= ?)
+                      AND (? = '' OR DATE(end_date) <= ?)
+                      AND (? = '' OR status = ?)
+                    ORDER BY id DESC
                     LIMIT ? OFFSET ?";
 
             $stmt = $conn->prepare($sql);
@@ -102,7 +99,7 @@ $offset = ($page - 1) * $limit;
                 $userId,
                 $fromDate, $fromDate,
                 $toDate, $toDate,
-                $paymentType, $paymentType,
+                $statusF, $statusF,
                 $limit, $offset
             );
             $stmt->execute();
@@ -111,19 +108,15 @@ $offset = ($page - 1) * $limit;
             $sr = $offset + 1;
             while ($row = $result->fetch_assoc()) {
 
-                $statusClass = 'pending';
-                if (strtolower($row['status']) === 'completed') $statusClass = 'success';
-                if (strtolower($row['status']) === 'failed')    $statusClass = 'failed';
+                $cls = 'pending';
+                if ($row['status'] === 'approved') $cls = 'success';
+                if ($row['status'] === 'rejected') $cls = 'failed';
 
                 echo "<tr>
                         <td>{$sr}</td>
-                        <td>{$row['request_date']}</td>
-                        <td>₹" . number_format($row['amount'], 2) . "</td>
-                        <td>{$row['payment_type']}</td>
-                        <td>{$row['reason']}</td>
-                        <td>
-                            <span class='status {$statusClass}'>" . ucfirst($row['status']) . "</span>
-                        </td>
+                        <td>{$row['start_date']} to {$row['end_date']}</td>
+                        <td>" . date('Y-m-d', strtotime($row['created_at'])) . "</td>
+                        <td><span class='status {$cls}'>" . ucfirst($row['status']) . "</span></td>
                       </tr>";
                 $sr++;
             }
@@ -134,13 +127,13 @@ $offset = ($page - 1) * $limit;
 </div>
 
 <?php
-/* ===== COUNT QUERY (FILTER AWARE) ===== */
+/* ===== COUNT QUERY ===== */
 $countSql = "SELECT COUNT(*) AS total
-             FROM advance_salary
+             FROM leaves
              WHERE user_id = ?
-               AND (? = '' OR DATE(request_date) >= ?)
-               AND (? = '' OR DATE(request_date) <= ?)
-               AND (? = '' OR payment_type = ?)";
+               AND (? = '' OR DATE(start_date) >= ?)
+               AND (? = '' OR DATE(end_date) <= ?)
+               AND (? = '' OR status = ?)";
 
 $countStmt = $conn->prepare($countSql);
 $countStmt->bind_param(
@@ -148,9 +141,8 @@ $countStmt->bind_param(
     $userId,
     $fromDate, $fromDate,
     $toDate, $toDate,
-    $paymentType, $paymentType
+    $statusF, $statusF
 );
-
 $countStmt->execute();
 $totalRows  = $countStmt->get_result()->fetch_assoc()['total'];
 $totalPages = ceil($totalRows / $limit);
@@ -164,7 +156,7 @@ $totalPages = ceil($totalRows / $limit);
             <?php if ($page > 1): ?>
                 <li class="page-item">
                     <a class="page-link"
-                       href="?page=<?= $page - 1 ?>&from_date=<?= $fromDate ?>&to_date=<?= $toDate ?>&payment_type=<?= $paymentType ?>">
+                       href="?page=<?= $page - 1 ?>&from_date=<?= $fromDate ?>&to_date=<?= $toDate ?>&status=<?= $statusF ?>">
                         Prev
                     </a>
                 </li>
@@ -177,7 +169,7 @@ $totalPages = ceil($totalRows / $limit);
             <?php if ($page < $totalPages): ?>
                 <li class="page-item">
                     <a class="page-link"
-                       href="?page=<?= $page + 1 ?>&from_date=<?= $fromDate ?>&to_date=<?= $toDate ?>&payment_type=<?= $paymentType ?>">
+                       href="?page=<?= $page + 1 ?>&from_date=<?= $fromDate ?>&to_date=<?= $toDate ?>&status=<?= $statusF ?>">
                         Next
                     </a>
                 </li>

@@ -7,97 +7,109 @@ require_once __DIR__ . "/../config/db.php";
 
 header("Content-Type: application/json");
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(["status" => "error", "message" => "User not logged in"]);
+$user_id = $_SESSION['user_id'] ?? 0;
+$action  = $_POST['action'] ?? '';
+
+if (!$user_id) {
+    echo json_encode(["status"=>"error","message"=>"Unauthorized"]);
     exit;
 }
 
-$user_id  = $_SESSION['user_id'];
-$action   = $_POST['action'] ?? '';
-$location = $_POST['location'] ?? '';
-
 try {
 
-    /* ===================== PUNCH IN ===================== */
-    if ($action === "punch_in") {
+    /* ========= STATUS (ON PAGE LOAD) ========= */
+    if ($action === "status") {
 
-        // ✅ Check if already punched in today
         $stmt = $conn->prepare("
-            SELECT id FROM attendance
-            WHERE user_id = ? AND DATE(punch_in) = CURDATE()
+            SELECT * FROM attendance
+            WHERE user_id = ?
+              AND DATE(punch_in) = CURDATE()
+            LIMIT 1
         ");
-        $stmt->bind_param("i", $user_id);
+        $stmt->bind_param("i",$user_id);
         $stmt->execute();
-        $stmt->store_result();
+        $row = $stmt->get_result()->fetch_assoc();
 
-        if ($stmt->num_rows > 0) {
-            throw new Exception("Already punched in today");
+        if (!$row) {
+            echo json_encode(["status"=>"none"]);
+            exit;
         }
 
-        // ✅ Insert punch in
-        $stmt = $conn->prepare("
-            INSERT INTO attendance
-            (user_id, punch_in, punch_in_location)
-            VALUES (?, NOW(), ?)
-        ");
-        $stmt->bind_param("is", $user_id, $location);
-        $stmt->execute();
-
         echo json_encode([
-            "status"  => "success",
-            "message" => "Punch In successful",
-            "time"    => date("H:i:s")
+            "status"=>"found",
+            "punch_in"=>$row['punch_in'],
+            "punch_out"=>$row['punch_out'],
+            "location"=>$row['punch_in_location']
         ]);
         exit;
     }
 
-    /* ===================== PUNCH OUT ===================== */
-    if ($action === "punch_out") {
+    /* ========= PUNCH IN ========= */
+    if ($action === "punch_in") {
+
+        $location = $_POST['location'] ?? '';
 
         $stmt = $conn->prepare("
-            SELECT id, punch_in, punch_out
-            FROM attendance
-            WHERE user_id = ? AND DATE(punch_in) = CURDATE()
+            SELECT id FROM attendance
+            WHERE user_id=? AND DATE(punch_in)=CURDATE()
+        ");
+        $stmt->bind_param("i",$user_id);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows > 0)
+            throw new Exception("Already punched in today");
+
+        $stmt = $conn->prepare("
+            INSERT INTO attendance (user_id,punch_in,punch_in_location)
+            VALUES (?,NOW(),?)
+        ");
+        $stmt->bind_param("is",$user_id,$location);
+        $stmt->execute();
+
+        echo json_encode(["status"=>"success","message"=>"Punch In successful"]);
+        exit;
+    }
+
+    /* ========= PUNCH OUT ========= */
+    if ($action === "punch_out") {
+
+        $location = $_POST['location'] ?? '';
+
+        $stmt = $conn->prepare("
+            SELECT id,punch_in,punch_out FROM attendance
+            WHERE user_id=? AND DATE(punch_in)=CURDATE()
             LIMIT 1
         ");
-        $stmt->bind_param("i", $user_id);
+        $stmt->bind_param("i",$user_id);
         $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
+        $row = $stmt->get_result()->fetch_assoc();
 
-        if (!$row) {
-            throw new Exception("Punch in first");
-        }
+        if (!$row) throw new Exception("Punch in first");
+        if ($row['punch_out']) throw new Exception("Already punched out");
 
-        if (!empty($row['punch_out'])) {
-            throw new Exception("Already punched out");
-        }
+        // ⏱ 2 MIN RULE
+        if (time() - strtotime($row['punch_in']) < 120)
+            throw new Exception("Punch out allowed after 2 minutes");
 
-        $hours = round((time() - strtotime($row['punch_in'])) / 3600, 2);
+        $hours = round((time()-strtotime($row['punch_in']))/3600,2);
 
         $stmt = $conn->prepare("
             UPDATE attendance
-            SET punch_out = NOW(),
-                punch_out_location = ?,
-                hours_worked = ?
-            WHERE id = ?
+            SET punch_out=NOW(),
+                punch_out_location=?,
+                hours_worked=?
+            WHERE id=?
         ");
-        $stmt->bind_param("sdi", $location, $hours, $row['id']);
+        $stmt->bind_param("sdi",$location,$hours,$row['id']);
         $stmt->execute();
-        echo json_encode([
-        "status"  => "success",
-        "message" => "Punch In successful",
-        "punch_in_time" => time() // unix timestamp
-        ]);
 
+        echo json_encode(["status"=>"success","message"=>"Punch Out successful"]);
         exit;
     }
 
     throw new Exception("Invalid action");
 
-} catch (Exception $e) {
-    echo json_encode([
-        "status"  => "error",
-        "message" => $e->getMessage()
-    ]);
+} catch(Exception $e){
+    echo json_encode(["status"=>"error","message"=>$e->getMessage()]);
 }

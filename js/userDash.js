@@ -171,122 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setInterval(updateDateTime, 1000);
 });
 
-/* ===============================
-   ATTENDANCE (PUNCH IN / OUT)
-================================ */
-
-/* ===============================
-   ATTENDANCE (PUNCH IN / OUT)
-================================ */
-
-// document.addEventListener("DOMContentLoaded", () => {
-
-//     const punchInBtn = document.getElementById("punchInBtn");
-//     const punchOutBtn = document.getElementById("punchOutBtn");
-//     const punchInTimeEl = document.getElementById("punchInTime");
-//     const punchOutTimeEl = document.getElementById("punchOutTime");
-
-//     if (!punchInBtn || !punchOutBtn) {
-//         console.warn("Punch buttons not found");
-//         return;
-//     }
-
-//     document.addEventListener("DOMContentLoaded", () => {
-
-//     const punchInBtn = document.getElementById("punchInBtn");
-//     const punchOutBtn = document.getElementById("punchOutBtn");
-//     const punchInTimeEl = document.getElementById("punchInTime");
-//     const punchOutTimeEl = document.getElementById("punchOutTime");
-
-//     function getAddressAndSend(action) {
-
-//         if (!navigator.geolocation) {
-//             alert("Geolocation not supported");
-//             return;
-//         }
-
-//         navigator.geolocation.getCurrentPosition(async (pos) => {
-
-//             const lat = pos.coords.latitude;
-//             const lng = pos.coords.longitude;
-
-//             let address = `Lat:${lat}, Lng:${lng}`;
-
-//             // 🔹 Convert GPS → Address (simple, free)
-//             try {
-//                 const res = await fetch(
-//                     `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
-//                 );
-//                 const data = await res.json();
-//                 if (data.display_name) {
-//                     address = data.display_name;
-//                 }
-//             } catch (e) {
-//                 console.warn("Address fetch failed, using lat/lng");
-//             }
-
-//             // 🔹 Show popup with LIVE ADDRESS
-//             Swal.fire({
-//                 title: action === "punch_in" ? "Confirm Punch In" : "Confirm Punch Out",
-//                 html: `<small>${address}</small>`,
-//                 icon: "question",
-//                 showCancelButton: true,
-//                 confirmButtonText: "Yes",
-//                 cancelButtonText: "No"
-//             }).then((result) => {
-
-//                 if (!result.isConfirmed) return;
-
-//                 // 🔹 Store SAME address in DB
-//                 fetch("pages/attendance_action.php", {
-//                     method: "POST",
-//                     headers: {
-//                         "Content-Type": "application/x-www-form-urlencoded"
-//                     },
-//                     body: new URLSearchParams({
-//                         action: action,
-//                         location: address
-//                     })
-//                 })
-//                 .then(res => res.json())
-//                 .then(data => {
-//                     if (data.status === "success") {
-
-//                         if (action === "punch_in") {
-//                             punchInTimeEl.textContent =
-//                                 "Punch In Time: " + data.time;
-//                             punchInBtn.disabled = true;
-//                             punchOutBtn.disabled = false;
-//                         } else {
-//                             punchOutTimeEl.textContent =
-//                                 "Punch Out Time: " + data.time;
-//                             punchOutBtn.disabled = true;
-//                         }
-
-//                         Swal.fire("Success", data.message, "success");
-//                     } else {
-//                         Swal.fire("Error", data.message, "error");
-//                     }
-//                 });
-
-//             });
-
-//         }, () => {
-//             alert("Location permission denied");
-//         });
-//     }
-
-//     punchInBtn.addEventListener("click", () => {
-//         getAddressAndSend("punch_in");
-//     });
-
-//     punchOutBtn.addEventListener("click", () => {
-//         getAddressAndSend("punch_out");
-//     });
-
-// });
-
-// });
 function initAttendance() {
   const punchInBtn = document.getElementById("punchInBtn");
   const punchOutBtn = document.getElementById("punchOutBtn");
@@ -396,17 +280,22 @@ function initAttendance() {
                 punchOutBtn.disabled = true;
                 punchOutBtn.classList.add("disabled");
 
-                // Enable Punch Out after 15 minutes
-                setTimeout(() => {
-                  punchOutBtn.disabled = false;
-                  punchOutBtn.classList.remove("disabled");
-                }, 15 * 60 * 1000);
+                // Show punch in time
+                const punchInTime = Date.now();
+                document.getElementById("punchInTime").textContent =
+                  "Punch In Time: " +
+                  new Date(punchInTime).toLocaleTimeString();
+
+                // 🔥 START TIMER IMMEDIATELY
+                startDuration(punchInTime);
               } else {
                 Swal.fire("Error", data.message, "error");
               }
             })
-            .catch(() => {
+            .catch((err) => {
               Swal.fire("Error", "Server error occurred", "error");
+              console.log(err);
+              
             });
         });
       },
@@ -432,3 +321,75 @@ function initAttendance() {
 
 // 🔥 Call it AFTER everything is loaded
 window.addEventListener("load", initAttendance);
+
+let durationInterval = null;
+
+function startDuration(punchInTime) {
+  const durationEl = document.getElementById("workDuration");
+  const punchOutBtn = document.getElementById("punchOutBtn");
+
+  if (!durationEl || !punchOutBtn) return;
+
+  // ✅ FIX: stop previous timer (THIS WAS MISSING)
+  if (durationInterval) {
+    clearInterval(durationInterval);
+    durationInterval = null;
+  }
+
+  function tick() {
+    const diff = Math.floor((Date.now() - punchInTime) / 1000);
+
+    const h = Math.floor(diff / 3600);
+    const m = Math.floor((diff % 3600) / 60);
+    const s = diff % 60;
+
+    durationEl.textContent =
+      `Working Duration: ${h}h ${m}m ${s}s`;
+
+    // ✅ FIX: enable after 2 minutes
+    if (diff >= 120) {
+      punchOutBtn.disabled = false;
+      punchOutBtn.classList.remove("disabled");
+    }
+  }
+
+  tick();
+  durationInterval = setInterval(tick, 1000);
+}
+
+
+
+async function restoreAttendanceState() {
+  const punchInBtn = document.getElementById("punchInBtn");
+  const punchOutBtn = document.getElementById("punchOutBtn");
+
+  const res = await fetch("pages/attendance_action.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "action=status",
+  });
+
+  const data = await res.json();
+  if (data.status !== "found") return;
+
+  punchInBtn.disabled = true;
+  punchInBtn.classList.add("disabled");
+
+  document.getElementById("punchInTime").textContent =
+    "Punch In Time: " + new Date(data.punch_in).toLocaleTimeString();
+
+  document.getElementById("locationInfo").textContent =
+    "Location: " + data.location;
+
+  if (data.punch_out) {
+    punchOutBtn.disabled = true;
+    document.getElementById("punchOutTime").textContent =
+      "Punch Out Time: " + new Date(data.punch_out).toLocaleTimeString();
+    return;
+  }
+
+  punchOutBtn.disabled = true;
+  startDuration(new Date(data.punch_in).getTime());
+}
+
+window.addEventListener("load", restoreAttendanceState);
