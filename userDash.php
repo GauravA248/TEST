@@ -17,6 +17,13 @@
     <link rel="stylesheet" href="css/userStyle.css">
 </head>
 
+<style>
+    .text-primary
+    {
+        color : #6AA7E9;
+    } 
+</style>
+
 <body>
     <!-- SIDEBAR -->
     <section id="sidebar">
@@ -114,7 +121,7 @@
             <div id="dashboardContent">
                 <div class="head-title">
                     <div class="left">
-                        <h1>Welcome, Hash</h1>
+                        <h1>Welcome, <span class="text-primary"><?= htmlspecialchars($_SESSION['username'] ?? 'User') ?></span></h1>
                         <ul class="breadcrumb">
                             <li>
                                 <a href="#">Dashboard</a>
@@ -141,21 +148,21 @@
                     <li>
                         <i class='bx bxs-calendar-check'></i>
                         <span class="text">
-                            <h3>1020</h3>
+                            <h4>1020</h4>
                             <p>Leave Status</p>
                         </span>
                     </li>
                     <li>
                         <i class='bx bxs-group'></i>
                         <span class="text">
-                            <h3>2834</h3>
+                            <h4 id="currentLocation">--</h4>
                             <p>Current Location</p>
                         </span>
                     </li>
                     <li>
                         <i class='bx bxs-dollar-circle'></i>
                         <span class="text">
-                            <h3>$2543</h3>
+                            <h4>$2543</h4>
                             <p>Pending Task</p>
                         </span>
                     </li>
@@ -183,11 +190,23 @@
                             </div>
 
                             <div class="punch-info">
-                                <!-- <p id="punchInTime">Punch In Time: --</p>
-                                <p id="punchOutTime">Punch Out Time: --</p> -->
-                                <p id="workDuration">Working Duration: --</p>
-                                <p id="locationInfo"></p>
+                                <div class="punch-row in">
+                                    <span class="label">🟢⏰ : </span>
+                                    <span id="punchInTime" class="value">--</span>
+                                </div>
+
+                                <div class="punch-row out">
+                                    <span class="label">🔴⏰ : </span>
+                                    <span id="punchOutTime" class="value">--</span>
+                                </div>
+
+                                <div class="punch-row in">
+                                    <span class="location">📍: </span>
+                                    <span id="location-data">--</span>
+                                    <!-- <span id="locationInfo" class="value">--</span> -->
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>

@@ -195,6 +195,7 @@ function initAttendance() {
         let addressHtml = "";
 
         try {
+          // 🔁 Use same logic as index.html (Nominatim style response via your PHP)
           const res = await fetch("pages/reverse_geocode.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -206,49 +207,46 @@ function initAttendance() {
           const data = await res.json();
           const a = data.address || {};
 
-          const parts = [
-            a.house_number && a.road ? `${a.house_number} ${a.road}` : a.road,
-            a.suburb || a.neighbourhood,
-            a.city || a.town || a.village,
-            a.state,
-            a.postcode,
-            a.country,
-          ].filter(Boolean);
+          const landmark = a.neighbourhood || a.suburb || "Not available";
+          const area = a.road || "";
+          const city = a.city || a.town || a.village || "";
+          const state = a.state || "";
+          const country = a.country || "";
+          const postcode = a.postcode || "";
 
-          if (!parts.length) throw new Error("No address found");
+          addressHtml = `
+            <strong>Landmark:</strong> ${landmark}<br>
+            <strong>Area:</strong> ${area}<br>
+            <strong>City:</strong> ${city}<br>
+            <strong>State:</strong> ${state}<br>
+            <strong>Country:</strong> ${country}<br>
+            ${postcode ? `<strong>Pincode:</strong> ${postcode}<br>` : ""}
+          `;
 
-          addressHtml = parts.join("<br>");
-          addressText = parts.join(", ");
+          addressText = [
+            landmark !== "Not available" ? landmark : null,
+            area,
+            city,
+            state,
+            postcode,
+            country,
+          ].filter(Boolean).join(", ");
+
         } catch (err) {
-          console.error(err);
-          Swal.fire(
-            "Location Error",
-            "Unable to fetch your live address.",
-            "error"
-          );
+          Swal.fire("Location Error", "Unable to fetch your live address.", "error");
           return;
         }
 
         Swal.fire({
-          title:
-            action === "punch_in" ? "Confirm Punch In" : "Confirm Punch Out",
+          title: action === "punch_in" ? "Confirm Punch In" : "Confirm Punch Out",
           html: `
-                        <div style="
-                            text-align:left;
-                            background:#f8f9fb;
-                            padding:14px 18px;
-                            border-radius:8px;
-                            border-left:4px solid #6c63ff;
-                            font-size:14px;
-                            line-height:1.6;
-                            color:#333;
-                        ">
-                            <div style="font-weight:600; margin-bottom:6px; color:#6c63ff;">
-                                📍 Current Location
-                            </div>
-                            ${addressHtml}
-                        </div>
-                    `,
+            <div style="text-align:left;background:#f8f9fb;padding:14px 18px;border-radius:8px;border-left:4px solid #6c63ff;">
+              <div style="font-weight:600;margin-bottom:6px;color:#6c63ff;">
+                📍 Current Location
+              </div>
+              ${addressHtml}
+            </div>
+          `,
           icon: "question",
           showCancelButton: true,
           confirmButtonText: "Yes",
@@ -256,7 +254,6 @@ function initAttendance() {
         }).then((result) => {
           if (!result.isConfirmed) return;
 
-          // ✅ CALL PUNCH API
           fetch("pages/attendance_action.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -272,30 +269,24 @@ function initAttendance() {
               if (data.status === "success") {
                 Swal.fire("Success", data.message, "success");
 
-                // Disable Punch In
                 punchInBtn.disabled = true;
                 punchInBtn.classList.add("disabled");
 
-                // Disable Punch Out initially
                 punchOutBtn.disabled = true;
                 punchOutBtn.classList.add("disabled");
 
-                // Show punch in time
                 const punchInTime = Date.now();
                 document.getElementById("punchInTime").textContent =
-                  "Punch In Time: " +
-                  new Date(punchInTime).toLocaleTimeString();
+                  "" + new Date(punchInTime).toLocaleTimeString();
 
-                // 🔥 START TIMER IMMEDIATELY
                 startDuration(punchInTime);
               } else {
                 Swal.fire("Error", data.message, "error");
               }
             })
             .catch((err) => {
-              Swal.fire("Error", "Server error occurred", "error");
               console.log(err);
-              
+              Swal.fire("Error", "Server error occurred", "error");
             });
         });
       },
@@ -304,15 +295,15 @@ function initAttendance() {
         if (error.code === 1) msg = "Location permission denied.";
         else if (error.code === 2) msg = "Location unavailable.";
         else if (error.code === 3) msg = "Location request timed out.";
-
         Swal.fire("Location Error", msg, "error");
       },
       {
-        enableHighAccuracy: false,
-        timeout: 20000,
-        maximumAge: 60000,
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     );
+
   }
 
   punchInBtn.onclick = () => getAddressAndSend("punch_in");
@@ -357,11 +348,11 @@ function startDuration(punchInTime) {
   durationInterval = setInterval(tick, 1000);
 }
 
-
-
 async function restoreAttendanceState() {
   const punchInBtn = document.getElementById("punchInBtn");
   const punchOutBtn = document.getElementById("punchOutBtn");
+
+  updateCurrentLocationBox();
 
   const res = await fetch("pages/attendance_action.php", {
     method: "POST",
@@ -376,20 +367,55 @@ async function restoreAttendanceState() {
   punchInBtn.classList.add("disabled");
 
   document.getElementById("punchInTime").textContent =
-    "Punch In Time: " + new Date(data.punch_in).toLocaleTimeString();
+    "" + new Date(data.punch_in).toLocaleTimeString();
 
-  document.getElementById("locationInfo").textContent =
-    "Location: " + data.location;
+  document.getElementById("location-data").textContent =
+    "" + data.location;
 
   if (data.punch_out) {
     punchOutBtn.disabled = true;
     document.getElementById("punchOutTime").textContent =
-      "Punch Out Time: " + new Date(data.punch_out).toLocaleTimeString();
+      "" + new Date(data.punch_out).toLocaleTimeString();
     return;
   }
 
   punchOutBtn.disabled = true;
   startDuration(new Date(data.punch_in).getTime());
+}
+
+function updateCurrentLocationBox() {
+    const locationEl = document.getElementById("currentLocation");
+
+    if (!navigator.geolocation) {
+        locationEl.textContent = "N/A";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            try {
+                const res = await fetch("pages/reverse_geocode.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ lat, lng })
+                });
+                const data = await res.json();
+                const address = data.address;
+                const city = address.city || address.town || address.village || '';
+                const state = address.state || '';
+                locationEl.textContent = city ? `${city}, ${state}` : 'Location not found';
+            } catch (err) {
+                locationEl.textContent = "Unable to fetch";
+            }
+        },
+        (err) => {
+            locationEl.textContent = "Permission denied";
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
 }
 
 window.addEventListener("load", restoreAttendanceState);

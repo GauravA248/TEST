@@ -28,46 +28,128 @@ $offset = ($page - 1) * $limit;
         padding: 2%;
         padding-top: 1%;
     }
+
+    /* FILTER BAR STYLE */
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  background: #fff;
+  padding: 18px 24px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+}
+
+.filter-group input,
+.filter-group select {
+  min-width: 190px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  outline: none;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  border-color: #4a90e2;
+}
+
+/* ACTION BUTTONS */
+.filter-actions {
+  display: flex;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.btn-search {
+  padding: 10px 26px;
+  border-radius: 20px;
+  background: #4a90e2;
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-search:hover {
+  background: #357bd8;
+}
+
+.btn-reset {
+  padding: 10px 24px;
+  border-radius: 20px;
+  border: 2px solid #333;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-reset:hover {
+  background: #333;
+  color: #fff;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-actions {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
 </style>
 
 <!-- ================= FILTER UI ================= -->
 <div class="profile-card">
-    <form method="GET">
-        <div class="attendance-filter">
+  <form method="GET">
+    <div class="filter-bar">
 
-            <div class="filter-item">
-                <label>From</label>
-                <input type="date" class="form-control" name="from_date" value="<?= htmlspecialchars($fromDate) ?>">
-            </div>
+      <div class="filter-group">
+        <label>From</label>
+        <input type="date" name="from_date" value="<?= htmlspecialchars($fromDate) ?>">
+      </div>
 
-            <div class="filter-item">
-                <label>To</label>
-                <input type="date" class="form-control" name="to_date" value="<?= htmlspecialchars($toDate) ?>">
-            </div>
+      <div class="filter-group">
+        <label>To</label>
+        <input type="date" name="to_date" value="<?= htmlspecialchars($toDate) ?>">
+      </div>
 
-            <!-- ✅ CASH FILTER ADDED -->
-            <div class="filter-item">
-                <label>Payment Type</label>
-                <select class="form-control" name="payment_type">
-                    <option value="">All</option>
-                    <option value="Cash" <?= $paymentType === 'Cash' ? 'selected' : '' ?>>Cash</option>
-                    <option value="UPI" <?= $paymentType === 'UPI' ? 'selected' : '' ?>>UPI</option>
-                    <option value="Bank" <?= $paymentType === 'Bank' ? 'selected' : '' ?>>Bank</option>
-                </select>
-            </div>
+      <div class="filter-group">
+        <label>Payment Type</label>
+        <select name="payment_type">
+          <option value="">All</option>
+          <option value="Cash" <?= $paymentType === 'Cash' ? 'selected' : '' ?>>Cash</option>
+          <option value="UPI" <?= $paymentType === 'UPI' ? 'selected' : '' ?>>UPI</option>
+          <option value="Bank" <?= $paymentType === 'Bank' ? 'selected' : '' ?>>Bank</option>
+        </select>
+      </div>
 
-            <div class="filter-item btn-item">
-                <label>&nbsp;</label>
-                <button class="btn btn-primary" type="submit">Search</button>
-            </div>
+      <div class="filter-actions">
+        <button type="submit" class="btn-search">Search</button>
+        <a href="?" class="btn-reset">Reset</a>
+      </div>
 
-            <div class="filter-item btn-item">
-                <label>&nbsp;</label>
-                <a href="?" class="btn btn-outline-dark">Reset</a>
-            </div>
-
-        </div>
-    </form>
+    </div>
+  </form>
 </div>
 
 <!-- ================= TABLE ================= -->
