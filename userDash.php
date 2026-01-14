@@ -18,7 +18,10 @@
 </head>
 
 <style>
-    
+    .text-primary
+    {
+        color : #6AA7E9;
+    } 
 </style>
 
 <body>
@@ -118,7 +121,7 @@
             <div id="dashboardContent">
                 <div class="head-title">
                     <div class="left">
-                        <h1>Welcome, <?= htmlspecialchars($_SESSION['username'] ?? 'User') ?></h1>
+                        <h1>Welcome, <span class="text-primary"><?= htmlspecialchars($_SESSION['username'] ?? 'User') ?></span></h1>
                         <ul class="breadcrumb">
                             <li>
                                 <a href="#">Dashboard</a>
