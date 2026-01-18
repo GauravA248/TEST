@@ -90,7 +90,24 @@ if ($action === "punch_out") {
 
     // ✅ TIME RESTRICTION REMOVED
 
-    $hours = round((time()-strtotime($row['punch_in']))/3600,2);
+    // $hours = round((time()-strtotime($row['punch_in']))/3600,2);
+    $punchIn  = strtotime($row['punch_in']);
+            $punchOut = strtotime(date('Y-m-d H:i:s')); // current time
+
+            $diffSeconds = $punchOut - $punchIn;
+
+            // Safety check (no negative)
+            if ($diffSeconds < 0) {
+                $diffSeconds = abs($diffSeconds);
+            }
+
+            // Convert seconds to HH:MM:SS
+            $h = floor($diffSeconds / 3600);
+            $m = floor(($diffSeconds % 3600) / 60);
+            $s = $diffSeconds % 60;
+
+            $duration = sprintf('%02d:%02d:%02d', $h, $m, $s);
+
 
     $stmt = $conn->prepare("
         UPDATE attendance
@@ -99,7 +116,8 @@ if ($action === "punch_out") {
             hours_worked=?
         WHERE id=?
     ");
-    $stmt->bind_param("sdi",$location,$hours,$row['id']);
+    // $stmt->bind_param("sdi",$location,$hours,$row['id']);
+    $stmt->bind_param("ssi", $location, $duration, $row['id']);
     $stmt->execute();
 
     echo json_encode(["status"=>"success","message"=>"Punch Out successful"]);
