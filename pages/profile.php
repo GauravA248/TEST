@@ -1,6 +1,24 @@
 <?php
 require_once __DIR__ . "/../config/user_guard.php";
 require_once __DIR__ . "/../config/db.php";
+// ================= FETCH USER PROFILE FOR AUTO-FILL =================
+$profile = [];
+
+$stmt = $conn->prepare("
+    SELECT *
+    FROM user_profiles
+    WHERE user_id = ?
+    LIMIT 1
+");
+$stmt->bind_param("i", $_SESSION['user_id']);
+$stmt->execute();
+$res = $stmt->get_result();
+
+if ($res && $res->num_rows > 0) {
+    $profile = $res->fetch_assoc();
+}
+$stmt->close();
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -136,16 +154,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="title" class="form-label">Title</label>
                 <select id="title" name="title" class="form-select" required>
                     <option value="">Select</option>
-                    <option value="Mr">Mr.</option>
-                    <option value="Mrs">Mrs.</option>
-                    <option value="Miss">Miss</option>
+<option value="Mr"   <?= ($profile['title'] ?? '')=='Mr'?'selected':'' ?>>Mr.</option>
+<option value="Mrs"  <?= ($profile['title'] ?? '')=='Mrs'?'selected':'' ?>>Mrs.</option>
+<option value="Miss" <?= ($profile['title'] ?? '')=='Miss'?'selected':'' ?>>Miss</option>
+
                 </select>
             </div>
 
             <div class="mb-3 col">
                 <label for="fullName" class="form-label">Full Name</label>
                 <input type="text" id="fullName" name="full_name"
-                       class="form-control" placeholder="Enter full name" required>
+class="form-control"
+value="<?= htmlspecialchars($profile['full_name'] ?? '') ?>"
+required>
+
             </div>
         </div>
 
@@ -153,14 +175,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3 col">
                 <label for="guardianName" class="form-label">Name of Guardian / Spouse</label>
                 <input type="text" id="guardianName" name="guardian_name"
-                       class="form-control" placeholder="Enter guardian or spouse name">
+class="form-control"
+value="<?= htmlspecialchars($profile['guardian_name'] ?? '') ?>">
+
             </div>
 
             <div class="mb-3 col">
                 <label for="aadhaar" class="form-label">Aadhaar Card Number</label>
-                <input type="text" id="aadhaar" name="aadhaar"
-                       maxlength="12" class="form-control"
-                       placeholder="Enter 12-digit Aadhaar" pattern="\d{12}">
+               <input type="text" id="aadhaar" name="aadhaar"
+                    maxlength="12"
+                    class="form-control"
+                    value="<?= htmlspecialchars($profile['aadhaar'] ?? '') ?>"
+                    pattern="\d{12}">
+
             </div>
         </div>
 
@@ -168,15 +195,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3 col">
                 <label for="pan" class="form-label">PAN Card Number</label>
                 <input type="text" id="pan" name="pan"
-                       maxlength="10" class="form-control"
-                       placeholder="Enter PAN (e.g., ABCDE1234F)"
-                       pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+                maxlength="10"
+                class="form-control"
+                value="<?= htmlspecialchars($profile['pan'] ?? '') ?>"
+                pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}">
+
             </div>
 
             <div class="mb-3 col">
                 <label for="email" class="form-label">Email Address</label>
                 <input type="email" id="email" name="email"
-                       class="form-control" placeholder="Enter your email" required>
+class="form-control"
+value="<?= htmlspecialchars($profile['email'] ?? '') ?>"
+required>
+
             </div>
         </div>
 
@@ -184,15 +216,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3 col">
                 <label for="phone" class="form-label">Phone Number</label>
                 <input type="tel" id="phone" name="phone"
-                       maxlength="10" class="form-control"
-                       placeholder="Enter 10-digit phone number"
-                       pattern="\d{10}">
+maxlength="10"
+class="form-control"
+value="<?= htmlspecialchars($profile['phone'] ?? '') ?>"
+pattern="\d{10}">
+
             </div>
 
             <div class="mb-3 col">
                 <label class="form-label">Permanent Address</label>
                 <input type="text" name="permanent_address"
-                       class="form-control" placeholder="Enter Permant Address">
+class="form-control"
+value="<?= htmlspecialchars($profile['permanent_address'] ?? '') ?>">
+
             </div>
         </div>
 
@@ -201,16 +237,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="form-label">Job Role</label>
                 <select name="job_role" class="form-select" required>
                     <option value="">Select</option>
-                    <option value="Security">Security</option>
-                    <option value="HouseKeeping">HouseKeeping</option>
-                    <option value="Driver">Driver</option>
+<option value="Security" <?= ($profile['job_role'] ?? '')=='Security'?'selected':'' ?>>Security</option>
+<option value="HouseKeeping" <?= ($profile['job_role'] ?? '')=='HouseKeeping'?'selected':'' ?>>HouseKeeping</option>
+<option value="Driver" <?= ($profile['job_role'] ?? '')=='Driver'?'selected':'' ?>>Driver</option>
                 </select>
             </div>
 
             <div class="mb-3 col">
                 <label for="joining" class="form-label">Date of Joining</label>
                 <input type="date" id="joining" name="date_of_joining"
-                       class="form-control" required>
+class="form-control"
+value="<?= $profile['date_of_joining'] ?? '' ?>"
+required>
+
             </div>
         </div>
 
@@ -218,13 +257,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3 col">
                 <label for="bankName" class="form-label">Bank Name</label>
                 <input type="text" id="bankName" name="bank_name"
-                       class="form-control" placeholder="Enter Bank Name" required>
+class="form-control"
+value="<?= htmlspecialchars($profile['bank_name'] ?? '') ?>"
+required>
+
             </div>
 
             <div class="mb-3 col">
                 <label for="ifscCode" class="form-label">IFSC Code</label>
                 <input type="text" id="ifscCode" name="ifsc_code"
-                       class="form-control" placeholder="Enter IFSC Code" required>
+class="form-control"
+value="<?= htmlspecialchars($profile['ifsc_code'] ?? '') ?>"
+required>
+
             </div>
         </div>
 
@@ -232,13 +277,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-3 col">
                 <label for="account" class="form-label">Acount Number</label>
                 <input type="number" id="account" name="account_number"
-                       class="form-control" placeholder="Enter Account Number" required>
+class="form-control"
+value="<?= htmlspecialchars($profile['account_number'] ?? '') ?>"
+required>
+
             </div>
 
             <div class="mb-3 col">
                 <label for="corrAddress" class="form-label">Correspondence Address</label>
                 <input type="text" id="corrAddress" name="correspondence_address"
-                       class="form-control" placeholder="Enter Correspondence Address">
+class="form-control"
+value="<?= htmlspecialchars($profile['correspondence_address'] ?? '') ?>">
+
             </div>
         </div>
 

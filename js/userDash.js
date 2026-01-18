@@ -419,3 +419,27 @@ function updateCurrentLocationBox() {
 }
 
 window.addEventListener("load", restoreAttendanceState);
+
+function loadMonthStatus(year, month) {
+
+    fetch(`pages/get_month_attendance.php?month=${year}-${month}`)
+        .then(res => res.json())
+        .then(data => {
+
+            document.querySelectorAll('.calendar-day').forEach(dayEl => {
+
+                const date = dayEl.dataset.date; // YYYY-MM-DD
+
+                if (!date) return;
+
+                dayEl.classList.remove('red','green','yellow','leave');
+
+                if (data[date]) {
+                    dayEl.classList.add(data[date]);
+                } else {
+                    dayEl.classList.add('red'); // ❌ not logged in
+                }
+            });
+        });
+}
+

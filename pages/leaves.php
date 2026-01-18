@@ -98,15 +98,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->execute()) {
 
                 // PRG pattern (prevent duplicate submit)
-                $_SESSION['leave_alert'] = [
-                    'type'  => 'success',
-                    'title' => 'Success',
-                    'text'  => 'Leave applied successfully'
-                ];
-
-                header("Location: leaves.php");
+               echo "<script>
+                    alert('Leave applied successfully');
+                    window.location.href = '/TEST/userDash.php';
+                </script>";
                 exit;
-
             } else {
 
                 $alert = [

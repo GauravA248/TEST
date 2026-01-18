@@ -54,8 +54,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
-
-        echo "<script>alert('Payment Applied Successfully');</script>";
+            echo "<script>
+                alert('Payment Applied Successfully');
+                window.location.href = '/TEST/userDash.php';
+            </script>";
+            exit;
 
         $stmt->close();
         

@@ -24,6 +24,7 @@
     } 
 </style>
 
+
 <body>
     <!-- SIDEBAR -->
     <section id="sidebar">

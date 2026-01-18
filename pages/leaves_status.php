@@ -120,7 +120,7 @@ $offset = ($page - 1) * $limit;
 
 <!-- ================= FILTER BAR ================= -->
 <div class="profile-card">
-  <form method="GET">
+  <form id="leaveFilterForm">
     <div class="filter-bar">
 
       <div class="filter-group">
@@ -173,7 +173,7 @@ $offset = ($page - 1) * $limit;
                     WHERE user_id = ?
                       AND (? = '' OR DATE(start_date) >= ?)
                       AND (? = '' OR DATE(end_date) <= ?)
-                      AND (? = '' OR status = ?)
+                      AND (? = '' OR LOWER(status) = LOWER(?))
                     ORDER BY id DESC
                     LIMIT ? OFFSET ?";
 
