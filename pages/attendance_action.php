@@ -71,42 +71,41 @@ try {
         exit;
     }
 
-    /* ========= PUNCH OUT ========= */
-    if ($action === "punch_out") {
+/* ========= PUNCH OUT ========= */
+if ($action === "punch_out") {
 
-        $location = $_POST['location'] ?? '';
+    $location = $_POST['location'] ?? '';
 
-        $stmt = $conn->prepare("
-            SELECT id,punch_in,punch_out FROM attendance
-            WHERE user_id=? AND DATE(punch_in)=CURDATE()
-            LIMIT 1
-        ");
-        $stmt->bind_param("i",$user_id);
-        $stmt->execute();
-        $row = $stmt->get_result()->fetch_assoc();
+    $stmt = $conn->prepare("
+        SELECT id,punch_in,punch_out FROM attendance
+        WHERE user_id=? AND DATE(punch_in)=CURDATE()
+        LIMIT 1
+    ");
+    $stmt->bind_param("i",$user_id);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
 
-        if (!$row) throw new Exception("Punch in first");
-        if ($row['punch_out']) throw new Exception("Already punched out");
+    if (!$row) throw new Exception("Punch in first");
+    if ($row['punch_out']) throw new Exception("Already punched out");
 
-        // ⏱ 2 MIN RULE
-        if (time() - strtotime($row['punch_in']) < 120)
-            throw new Exception("Punch out allowed after 2 minutes");
+    // ✅ TIME RESTRICTION REMOVED
 
-        $hours = round((time()-strtotime($row['punch_in']))/3600,2);
+    $hours = round((time()-strtotime($row['punch_in']))/3600,2);
 
-        $stmt = $conn->prepare("
-            UPDATE attendance
-            SET punch_out=NOW(),
-                punch_out_location=?,
-                hours_worked=?
-            WHERE id=?
-        ");
-        $stmt->bind_param("sdi",$location,$hours,$row['id']);
-        $stmt->execute();
+    $stmt = $conn->prepare("
+        UPDATE attendance
+        SET punch_out=NOW(),
+            punch_out_location=?,
+            hours_worked=?
+        WHERE id=?
+    ");
+    $stmt->bind_param("sdi",$location,$hours,$row['id']);
+    $stmt->execute();
 
-        echo json_encode(["status"=>"success","message"=>"Punch Out successful"]);
-        exit;
-    }
+    echo json_encode(["status"=>"success","message"=>"Punch Out successful"]);
+    exit;
+}
+
 
     throw new Exception("Invalid action");
 

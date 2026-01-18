@@ -67,4 +67,31 @@ function loadPage(page) {
             console.error("Page load failed:", err);
         });
 }
+// ===============================
+// PAYMENT DROPDOWN FIX (DYNAMIC PAGE SAFE)
+// ===============================
+document.addEventListener("change", function (e) {
 
+    if (e.target && e.target.id === "paymentType") {
+
+        const upi = document.getElementById("upiField");
+        const acc = document.getElementById("accountField");
+        const ifsc = document.getElementById("ifscField");
+
+        if (!upi || !acc || !ifsc) return;
+
+        // Hide all
+        upi.style.display = "none";
+        acc.style.display = "none";
+        ifsc.style.display = "none";
+
+        if (e.target.value === "UPI") {
+            upi.style.display = "block";
+        }
+
+        if (e.target.value === "Bank Transfer") {
+            acc.style.display = "block";
+            ifsc.style.display = "block";
+        }
+    }
+});

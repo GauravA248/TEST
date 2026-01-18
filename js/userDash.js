@@ -208,7 +208,7 @@ function initAttendance() {
           const a = data.address || {};
 
           const landmark = a.neighbourhood || a.suburb || "Not available";
-          const area = a.road || "";
+          const area =  a.road ||  a.suburb ||  a.neighbourhood ||  a.locality ||  a.sublocality ||  "";
           const city = a.city || a.town || a.village || "";
           const state = a.state || "";
           const country = a.country || "";
@@ -379,7 +379,7 @@ async function restoreAttendanceState() {
     return;
   }
 
-  punchOutBtn.disabled = true;
+ 
   startDuration(new Date(data.punch_in).getTime());
 }
 

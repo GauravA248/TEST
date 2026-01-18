@@ -1,6 +1,36 @@
 <?php
     require_once __DIR__ . "/config/user_guard.php";
+    require_once __DIR__ . "/config/db.php";  
+
+$userId = $_SESSION['user_id'];
+$currentMonth = date('m');
+$currentYear  = date('Y');
+
+/* === LEAVES COUNT (CURRENT MONTH) === */
+$leaveStmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM leaves
+    WHERE user_id = ?
+      AND MONTH(start_date) = ?
+      AND YEAR(start_date) = ?
+");
+$leaveStmt->bind_param("iii", $userId, $currentMonth, $currentYear);
+$leaveStmt->execute();
+$leaveCount = $leaveStmt->get_result()->fetch_assoc()['total'] ?? 0;
+
+/* === PAYMENT COUNT (CURRENT MONTH) === */
+$paymentStmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM advance_salary
+    WHERE user_id = ?
+      AND MONTH(request_date) = ?
+      AND YEAR(request_date) = ?
+");
+$paymentStmt->bind_param("iii", $userId, $currentMonth, $currentYear);
+$paymentStmt->execute();
+$paymentCount = $paymentStmt->get_result()->fetch_assoc()['total'] ?? 0;
 ?>
+
 
 
 <!DOCTYPE html>
@@ -77,12 +107,12 @@
             </li>    
         </ul>
         <ul class="side-menu">
-            <li>
+            <!-- <li>
                 <a href="#">
                     <i class='bx bxs-cog'></i>
                     <span class="text">Settings</span>
                 </a>
-            </li>
+            </li> -->
             <li>
                 <a id="logoutBtn" class="logout" style="cursor: pointer;">
                     <i class='bx bxs-log-out-circle'></i>
@@ -112,7 +142,7 @@
                 <span class="num">8</span>
             </a>
             <a href="#" class="profile">
-                <img src="images/people.png">
+                <img src="images/User.png">
             </a>
         </nav>
         <!-- NAVBAR -->
@@ -149,8 +179,8 @@
                     <li>
                         <i class='bx bxs-calendar-check'></i>
                         <span class="text">
-                            <h4>1020</h4>
-                            <p>Leave Status</p>
+                            <h3><?= $leaveCount ?></h3>
+                            <p>Total Applied Leaves</p>
                         </span>
                     </li>
                     <li>
@@ -163,8 +193,9 @@
                     <li>
                         <i class='bx bxs-dollar-circle'></i>
                         <span class="text">
-                            <h4>$2543</h4>
-                            <p>Pending Task</p>
+                            <h3><?= $paymentCount ?></h3>
+                           <p>Payments Applied</p>
+
                         </span>
                     </li>
                 </ul>
@@ -206,6 +237,7 @@
                                     <span id="location-data">--</span>
                                     <!-- <span id="locationInfo" class="value">--</span> -->
                                 </div>
+                            <div id="workDuration" style="font-size:13px;color:#666;margin-top:6px;"></div>
                             </div>
 
                         </div>
