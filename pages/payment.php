@@ -16,6 +16,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $date = $_POST['date'] ?? '';
         $reason = $_POST['reason'] ?? '';
 
+        /* ======================================================
+           ✅ VALIDATION START (ADDED – NOTHING BROKEN)
+        ====================================================== */
+
+        /* --- Rule 1: Max 3 requests per current month --- */
+        $currentMonth = date('m');
+        $currentYear  = date('Y');
+
+        $countStmt = $conn->prepare("
+            SELECT COUNT(*) AS total
+            FROM advance_salary
+            WHERE user_id = ?
+              AND MONTH(request_date) = ?
+              AND YEAR(request_date) = ?
+        ");
+        $countStmt->bind_param("iii", $user_id, $currentMonth, $currentYear);
+        $countStmt->execute();
+        $countRes = $countStmt->get_result()->fetch_assoc();
+        $monthlyCount = (int) ($countRes['total'] ?? 0);
+        $countStmt->close();
+
+        if ($monthlyCount >= 3) {
+            echo "<script>
+                alert('You can apply for Advance Salary only 3 times in the current month.');
+                window.history.back();
+            </script>";
+            exit;
+        }
+
+        /* --- Rule 2: Max amount 10,000 --- */
+        if ($amount > 10000) {
+            echo "<script>
+                alert('Maximum advance salary limit is ₹10,000 only.');
+                window.history.back();
+            </script>";
+            exit;
+        }
+
+        /* ======================================================
+           ✅ VALIDATION END
+        ====================================================== */
+
         $upi = null;
         $account = null;
         $ifsc = null;
@@ -54,27 +96,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
-            echo "<script>
-                alert('Payment Applied Successfully');
-                window.location.href = '/TEST/userDash.php';
-            </script>";
-            exit;
 
-        $stmt->close();
-        
+        echo "<script>
+            alert('Payment Applied Successfully');
+            window.location.href = '/TEST/userDash.php';
+        </script>";
+        exit;
 
     } catch (Throwable $e) {
 
-        // ✅ PHP native logging
         error_log(
-            "[Advance Salary Error] " .
-            "UserID: " . ($_SESSION['user_id'] ?? 'NA') .
+            "[Advance Salary Error] UserID: " .
+            ($_SESSION['user_id'] ?? 'NA') .
             " | Message: " . $e->getMessage()
-        );     
-    }
+        );
 
+        echo "<script>
+            alert('Something went wrong. Please try again later.');
+            window.history.back();
+        </script>";
+        exit;
+    }
 }
 ?>
+
 
 
 <link rel="stylesheet" href="/TEST/css/pages.css">

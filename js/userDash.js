@@ -56,23 +56,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!calendar) return;
 
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
   ];
 
+  let currentYear, currentMonth;
+
   function generateCalendar(year, month) {
+    currentYear = year;
+    currentMonth = month;
+
     calendar.innerHTML = "";
 
+    /* ===== Header ===== */
     const header = document.createElement("div");
     header.className = "calendar-header";
 
@@ -88,13 +84,13 @@ document.addEventListener("DOMContentLoaded", () => {
     header.append(prevBtn, title, nextBtn);
     calendar.append(header);
 
+    /* ===== Grid ===== */
     const grid = document.createElement("div");
     grid.className = "calendar";
 
-    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((d) => {
+    ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d => {
       const el = document.createElement("div");
       el.textContent = d;
-      el.style.fontWeight = "bold";
       grid.append(el);
     });
 
@@ -112,12 +108,16 @@ document.addEventListener("DOMContentLoaded", () => {
       el.className = "calendar-day";
       el.textContent = d;
 
-      const thisDate = new Date(year, month, d);
+      /* ⭐ IMPORTANT: data-date (DYNAMIC) */
+      const monthStr = String(month + 1).padStart(2, "0");
+      const dayStr   = String(d).padStart(2, "0");
+      el.dataset.date = `${year}-${monthStr}-${dayStr}`;
 
+      /* Today highlight */
       if (
-        thisDate.getDate() === today.getDate() &&
-        thisDate.getMonth() === today.getMonth() &&
-        thisDate.getFullYear() === today.getFullYear()
+        d === today.getDate() &&
+        month === today.getMonth() &&
+        year === today.getFullYear()
       ) {
         el.classList.add("today");
       }
@@ -127,6 +127,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     calendar.append(grid);
 
+    /* ===== Load colors for this month ===== */
+    loadMonthStatus(year, month + 1);
+
+    /* ===== Navigation ===== */
     prevBtn.onclick = () => {
       generateCalendar(
         month === 0 ? year - 1 : year,
@@ -145,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const now = new Date();
   generateCalendar(now.getFullYear(), now.getMonth());
 });
+
 
 /* ===============================
    DATE & TIME
@@ -441,5 +446,22 @@ function loadMonthStatus(year, month) {
                 }
             });
         });
+}
+fetch("api/getCalendarStatus.php")
+  .then(res => res.json())
+  .then(data => {
+    document.querySelectorAll(".calendar-day").forEach(day => {
+      const date = day.dataset.date;
+      if (!date) return;
+
+      const status = data[date] || 'red';
+      addDot(day, status);
+    });
+  });
+
+function addDot(day, status) {
+  const dot = document.createElement("span");
+  dot.className = "dot " + status;
+  day.appendChild(dot);
 }
 
